@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
 	"reflect"
+	"strings"
 )
 
 type Entry struct {
@@ -56,4 +58,62 @@ func newEntry(name string, variable any) error {
 	}
 
 	return nil
+}
+
+func importPython(filePath string) error {
+	file, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to read file: %w", err)
+	}
+
+	lines := bytes.Split(file, []byte("\n"))
+	var outputLines [][]byte
+
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(string(line))
+
+		if strings.Contains(trimmed, "# conduit:import") {
+
+			parts := strings.Fields(trimmed)
+			if len(parts) < 3 {
+				outputLines = append(outputLines, line)
+				continue
+			}
+			varName := parts[2]
+
+			entry, err := readEntry(varName)
+			if err != nil {
+				return fmt.Errorf("variable %s not found in .conduit: %w", varName, err)
+			}
+
+			pyType := typeMap[entry.Type]["python"]
+			generated := fmt.Sprintf("%s: %s = %v", varName, pyType, entry.Value)
+			outputLines = append(outputLines, []byte(generated))
+		} else {
+			outputLines = append(outputLines, line)
+		}
+	}
+
+	output := bytes.Join(outputLines, []byte("\n"))
+	return os.WriteFile(filePath, output, 0644)
+}
+
+func readEntry(name string) (Entry, error) {
+	data, err := os.ReadFile(".conduit")
+	if err != nil {
+		return Entry{}, err
+	}
+
+	var entries []Entry
+	if err := json.Unmarshal(data, &entries); err != nil {
+		return Entry{}, err
+	}
+
+	for _, e := range entries {
+		if e.Name == name {
+			return e, nil
+		}
+	}
+
+	return Entry{}, fmt.Errorf("entry not found")
 }
