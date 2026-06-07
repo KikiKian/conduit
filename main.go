@@ -1,79 +1,51 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"log"
 	"os"
-	"reflect"
 )
 
-type Entry struct {
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	Value any    `json:"value"`
-}
-
-var typeMap = map[string]map[string]string{
-	"int": {
-		"typescript": "number",
-		"python":     "int",
-		"java":       "int",
-		"go":         "int",
-	},
-	"string": {
-		"typescript": "string",
-		"python":     "str",
-		"java":       "String",
-		"go":         "string",
-	},
-	"bool": {
-		"typescript": "boolean",
-		"python":     "bool",
-		"java":       "boolean",
-		"go":         "bool",
-	},
-}
-
-func conduitFile() {
-	os.Create(".conduit")
-}
-
-func newEntry(name string, variable any) error {
-	entry := Entry{
-		Name:  name,
-		Type:  reflect.TypeOf(variable).String(),
-		Value: variable,
+func main() {
+	if err := InitConduit(); err != nil {
+		log.Fatalln("failed to init .conduit:", err)
 	}
 
-	data, err := json.Marshal(entry)
-	if err != nil {
-		return fmt.Errorf("failed to serialize entry: %w", err)
+	args := os.Args[1:]
+
+	if len(args) == 0 {
+		fmt.Println(dimStyle.Render("  usage: conduit <command>"))
+		fmt.Println(dimStyle.Render("  commands: init, add, watch"))
+		return
 	}
 
-	err = os.WriteFile(name+".conduit", data, 0644)
-	if err != nil {
-		return fmt.Errorf("failed to write file: %w", err)
-	}
+	switch args[0] {
+	case "init":
+		runInit()
 
-	return nil
-}
+	case "add":
+		runAdd()
 
-func readEntry(name string) (Entry, error) {
-	data, err := os.ReadFile(".conduit")
-	if err != nil {
-		return Entry{}, err
-	}
-
-	var entries []Entry
-	if err := json.Unmarshal(data, &entries); err != nil {
-		return Entry{}, err
-	}
-
-	for _, e := range entries {
-		if e.Name == name {
-			return e, nil
+	case "watch":
+		var overrides []string
+		for i := 1; i < len(args); i++ {
+			if args[i] == "--file" && i+1 < len(args) {
+				overrides = append(overrides, args[i+1])
+				i++
+			}
 		}
-	}
 
-	return Entry{}, fmt.Errorf("entry not found")
+		config, err := LoadConfig(overrides)
+		if err != nil {
+			log.Fatalln(errorStyle.Render("✗ " + err.Error()))
+		}
+
+		if err := Watch(config.Targets); err != nil {
+			log.Fatalln(errorStyle.Render("✗ " + err.Error()))
+		}
+
+	default:
+		fmt.Println(errorStyle.Render("  ✗ unknown command: " + args[0]))
+		fmt.Println(dimStyle.Render("  commands: init, add, watch"))
+	}
 }
