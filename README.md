@@ -1,11 +1,14 @@
 # conduit
-![Alt text](/screenshots/Conduit_JE1_BE1.webp)
+![conduit](/screenshots/Conduit_JE1_BE1.webp)
+
+---
+Conduit (noun.): a channel or pipe used to convey something, such as water, electrical wires, or information
+
+> Conduit is a channel for your variables across languages.
 
 ```bash
 go install github.com/kikikian/conduit@latest
 ```
-
----
 
 ## the problem
 
