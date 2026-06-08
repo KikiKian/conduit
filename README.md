@@ -2,23 +2,32 @@
 ![conduit](/screenshots/Conduit_JE1_BE1.webp)
 
 ---
-Conduit (noun.): a channel or pipe used to convey something, such as water, electrical wires, or information
+> Conduit (noun.): a channel or pipe used to convey something, such as water, electrical wires, or information
 
-> Conduit is a channel for your variables across languages.
+Conduit is a channel for your variables across languages.
 
 ```bash
 go install github.com/kikikian/conduit@latest
 ```
 
-## the problem
+## The problem
 
-polyglot projects make you duplicate constants. a port number lives in your Go server, your Python script, and your TypeScript frontend — three places to keep in sync, three places to get wrong.
+Polyglot projects make you duplicate constants. A port number lives in your Go server, your Python script, and your TypeScript frontend. That isthree places to keep in sync, three places to get wrong.
 
-conduit fixes that. define a variable once and it automatically appears in every language you use, with the right type.
+Conduit fixes that. define a variable once and it automatically appears in every language you use, with the right type.
 
 ---
 
-## quick start
+## Supported Languages (for now)
+-> Golang
+
+-> Python
+
+-> Typesript
+
+---
+
+## Quick start
 
 ```bash
 # 1. initialize your project
@@ -31,13 +40,13 @@ conduit add --name PORT --type int --value 3000
 conduit watch
 ```
 
-that's it. conduit monitors `.conduit` and rewrites your target files every time a variable changes.
+Conduit monitors `.conduit` and rewrites your target files every time a variable changes.
 
 ---
 
-## how it works
+## How it works
 
-mark the spot in your code where you want a variable injected:
+Mark the spot in your code where you want a variable injected:
 
 **python**
 ```python
@@ -54,7 +63,7 @@ mark the spot in your code where you want a variable injected:
 // conduit:import PORT
 ```
 
-when conduit runs, those lines become real typed declarations:
+When conduit runs, those lines become typed declarations:
 
 ```python
 PORT: int = 3000
@@ -68,13 +77,13 @@ var PORT int = 3000
 
 ---
 
-## commands
+## Commands
 
 **`conduit init`**
-interactive setup. select your target languages and map them to file paths. creates `conduit.config.json`.
+Select your target languages and map them to file paths -> creates `conduit.config.json`.
 
 **`conduit add`**
-add a variable. fully interactive or via flags:
+Add a variable. Interactive or via flags:
 ```bash
 conduit add --name DATABASE_URL --type string --value postgresql://localhost/mydb
 conduit add --name DEBUG --type bool --value true
@@ -82,7 +91,7 @@ conduit add --name PORT --type int --value 5432
 ```
 
 **`conduit watch`**
-watch `.conduit` for changes and regenerate all target files instantly. run this in the background while you develop.
+Watch `.conduit` for changes and regenerate all target files instantly. Run this in the background while you develop.
 
 ```bash
 conduit watch
@@ -91,7 +100,7 @@ conduit watch --file python:./app.py   # one-off override
 
 ---
 
-## types
+## Types
 
 | conduit | python | typescript | go |
 |---------|--------|------------|----|
@@ -101,7 +110,7 @@ conduit watch --file python:./app.py   # one-off override
 
 ---
 
-## config
+## Config
 
 `conduit init` generates a `conduit.config.json` in your project root:
 
@@ -114,8 +123,6 @@ conduit watch --file python:./app.py   # one-off override
   ]
 }
 ```
-
-commit this file — your whole team shares the same setup.
 
 ---
 
@@ -136,4 +143,4 @@ cd conduit
 go build
 ```
 
-requires go 1.21+
+### requires go 1.21+
