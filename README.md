@@ -12,7 +12,7 @@ go install github.com/kikikian/conduit@latest
 
 ## The problem
 
-Polyglot projects make you duplicate constants. A port number lives in your Go server, your Python script, and your TypeScript frontend. That isthree places to keep in sync, three places to get wrong.
+Polyglot projects make you duplicate constants. A port number lives in your Go server, your Python script, and your TypeScript frontend. That is three places to keep in sync, three places to get wrong.
 
 Conduit fixes that. define a variable once and it automatically appears in every language you use, with the right type.
 
